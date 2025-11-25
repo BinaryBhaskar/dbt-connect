@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    maxWidth: 600,
+    maxWidth: 1600,
     alignSelf: 'center',
     paddingTop: Platform.OS === 'web' ? 0 : 0,
     paddingBottom: 0,

@@ -45,6 +45,15 @@ const globalStyles = StyleSheet.create({
   aiTitle: { fontSize: 16, color: '#fff', fontWeight: '600', marginBottom: 4 },
   aiDesc: { fontSize: 13, color: '#fff', opacity: 0.9, marginBottom: 8 },
   statusBadge: { backgroundColor: '#4ade80', color: '#064e3b', fontSize: 12, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, fontWeight: '600', alignSelf: 'flex-start' },
+  shadowCard: {
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    shadowOffset: {width: 0, height: 2},
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
 });
 
 export default globalStyles;
