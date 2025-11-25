@@ -4,12 +4,11 @@ import { Slot, useRouter, useSegments } from 'expo-router';
 import React from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 
-const NAV_KEYS = ['index', 'explore'] as const;
+const NAV_KEYS = ['index', 'dbt', 'scholarships' , 'explore'] as const;
 type NavKey = typeof NAV_KEYS[number];
 
 function getCurrentTab(segments: string[] | undefined): NavKey {
   if (!segments || segments.length === 0) return 'index';
-  // Typical: ['', '(tabs)', 'index'] or ['', '(tabs)', 'explore']
   if (segments.length >= 3 && NAV_KEYS.includes(segments[2] as NavKey)) {
     return segments[2] as NavKey;
   }
@@ -36,6 +35,10 @@ export default function TabLayout() {
         router.replace('/(tabs)'); // Use the root of the tabs for Home
       } else if (key === 'explore') {
         router.replace('/(tabs)/explore');
+      } else if (key === 'dbt') {
+        router.replace('/(tabs)/dbt');
+      } else if (key === 'scholarships') {
+        router.replace('/(tabs)/scholarships');
       }
     }
   };
@@ -61,7 +64,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    maxWidth: 600,
+    maxWidth: 1600,
     alignSelf: 'center',
     paddingTop: Platform.OS === 'web' ? 0 : 0,
     paddingBottom: 0,
