@@ -1,28 +1,26 @@
 import React from 'react';
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { IconSymbol } from './icon-symbol';
+import DBTIcon from '../../assets/images/dbt_aadhaar_doc.svg';
+import ExploreIcon from '../../assets/images/explore.svg';
+import HomeIcon from '../../assets/images/home.svg';
+import ScholarshipsIcon from '../../assets/images/scholarships.svg';
 
 const NAV_ITEMS = [
-  { key: 'index', icon: 'house.fill', label: 'Home' },
-  { key: 'dbt', icon: 'chevron.left.forwardslash.chevron.right', label: 'DBT Check' },
-  { key: 'scholarships', icon: 'chevron.right', label: 'Scholarships' },
-  { key: 'explore', icon: 'paperplane.fill', label: 'Explore' },
+  { key: 'index', label: 'Home', Svg: HomeIcon },
+  { key: 'dbt', label: 'DBT Check', Svg: DBTIcon },
+  { key: 'scholarships', label: 'Scholarships', Svg: ScholarshipsIcon },
+  { key: 'explore', label: 'Explore', Svg: ExploreIcon },
 ];
 
 export const BottomNavBar = ({ current, onTabPress }: { current: string; onTabPress: (key: string) => void }) => {
   // Pure white background
   const backgroundColor = '#fff';
-  // Light blue for selected tab (updated)
-  const selectedBg = '#DBEAFE';
   const selectedColor = '#1447E6';
   const textColor = '#687076';
   return (
     <View style={[styles.container, { backgroundColor }]}> 
       {NAV_ITEMS.map(item => {
         const isSelected = current === item.key;
-        // For first and last tab, extend background to screen edge when selected
-        const isFirst = item.key === NAV_ITEMS[0].key;
-        const isLast = item.key === NAV_ITEMS[NAV_ITEMS.length - 1].key;
         return (
           <View style={styles.tab} key={item.key}>
             {isSelected && (
@@ -33,10 +31,11 @@ export const BottomNavBar = ({ current, onTabPress }: { current: string; onTabPr
               activeOpacity={0.7}
               onPress={() => onTabPress(item.key)}
             >
-              <IconSymbol
-                name={item.icon as any}
-                size={28}
+              <item.Svg
+                width={24}
+                height={24}
                 color={isSelected ? selectedColor : textColor}
+                fill={isSelected ? selectedColor : textColor}
               />
               <Text style={{ fontSize: 11, color: isSelected ? selectedColor : textColor, marginTop: 2 }}>{item.label}</Text>
             </TouchableOpacity>
