@@ -34,10 +34,9 @@ export default function HomeScreen() {
     <ScrollView style={globalStyles.container} contentContainerStyle={{ paddingBottom: 100}}>
       {/* Header */}
       <AppBar />
-
       <View style={{paddingHorizontal:16}}>
         {/* Alert */}
-        <View style={globalStyles.alertBox}>
+        <View style={[globalStyles.alertBox, globalStyles.shadowCard]}>
           <View style={globalStyles.alertIcon}><Text style={{color:'#fff'}}>!</Text></View>
           <Text style={globalStyles.alertText}>
             <Text style={{fontWeight:'bold'}}>Important: </Text>
@@ -47,15 +46,15 @@ export default function HomeScreen() {
 
         {/* Stats */}
         <View style={globalStyles.statsRow}>
-          <View style={[globalStyles.statCard, {backgroundColor:'#3b82f6'}]}>
+          <View style={[globalStyles.statCard, globalStyles.shadowCard, {backgroundColor:'#3b82f6'}]}>
             <Text style={globalStyles.statNumber}>{stats.schemes}</Text>
             <Text style={globalStyles.statLabel}>Active Schemes</Text>
           </View>
-          <View style={[globalStyles.statCard, {backgroundColor:'#4ade80'}]}>
+          <View style={[globalStyles.statCard, globalStyles.shadowCard, {backgroundColor:'#4ade80'}]}>
             <Text style={globalStyles.statNumber}>{stats.beneficiaries}</Text>
             <Text style={globalStyles.statLabel}>Beneficiaries</Text>
           </View>
-          <View style={[globalStyles.statCard, {backgroundColor:'#f97316'}]}>
+          <View style={[globalStyles.statCard, globalStyles.shadowCard, {backgroundColor:'#f97316'}]}>
             <Text style={globalStyles.statNumber}>{stats.centers.toLocaleString()}</Text>
             <Text style={globalStyles.statLabel}>Help Centers</Text>
           </View>
@@ -67,11 +66,11 @@ export default function HomeScreen() {
           <ServiceCard icon="📄" color="#3b82f6" title="DBT & Aadhaar Check" desc="Check linking status" />
           <ServiceCard icon="🎓" color="#4ade80" title="Scholarships" desc="View all schemes" />
           <ServiceCard icon="📍" color="#f97316" title="Nearest Centers" desc="Find help nearby" />
-          <ServiceCard icon="👥" color="#a855f7" title="Our Portal" desc="Register & verify" active />
+          <ServiceCard icon="👥" color="#953be8ff" title="Our Portal" desc="Register & verify" active />
         </View>
 
         {/* Latest Updates */}
-        <View style={globalStyles.updatesCard}>
+        <View style={[globalStyles.updatesCard, globalStyles.shadowCard]}>
           <Text style={[globalStyles.sectionTitle, {marginBottom:8}]}>Latest Updates</Text>
           {updates.map((u, i) => (
             <View key={i} style={globalStyles.updateItem}>
@@ -88,7 +87,7 @@ export default function HomeScreen() {
         </View>
 
         {/* Resources */}
-        <View style={globalStyles.resourcesSection}>
+        <View style={[globalStyles.resourcesSection, globalStyles.shadowCard]}>
           <Text style={[globalStyles.sectionTitle, {marginBottom:8}]}>Awareness Resources</Text>
           <View style={globalStyles.resourceButtons}>
             <TouchableOpacity style={globalStyles.resBtn}><Text>📥 Posters</Text></TouchableOpacity>
@@ -97,7 +96,7 @@ export default function HomeScreen() {
         </View>
 
         {/* AI Banner */}
-        <View style={globalStyles.aiBanner}>
+        <View style={[globalStyles.aiBanner, globalStyles.shadowCard]}>
           <View style={globalStyles.aiIconCircle}><Text style={{fontSize:24}}>💬</Text></View>
           <View style={globalStyles.aiText}>
             <Text style={globalStyles.aiTitle}>AI Assistant</Text>
@@ -119,4 +118,3 @@ function ServiceCard({icon, color, title, desc, active}: {icon: string, color: s
     </View>
   );
 }
-
