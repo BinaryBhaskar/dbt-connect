@@ -1,9 +1,11 @@
 
 import React, { useState } from 'react';
-import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
 import AppBar from '../../components/ui/app-bar';
 import globalStyles from '../../constants/globalStyles';
 
+// Add lat/lng for demo purposes
 const centersData = [
   {
     id: 1,
@@ -14,6 +16,8 @@ const centersData = [
     distance: '1.2 km away',
     phone: '98765 43210',
     hours: '9:00 AM - 6:00 PM',
+    latitude: 28.6139,
+    longitude: 77.209,
   },
   {
     id: 2,
@@ -24,6 +28,8 @@ const centersData = [
     distance: '2.5 km away',
     phone: '98765 43212',
     hours: '10:00 AM - 4:00 PM',
+    latitude: 28.6145,
+    longitude: 77.205,
   },
   {
     id: 3,
@@ -34,6 +40,8 @@ const centersData = [
     distance: '3.1 km away',
     phone: '98765 43222',
     hours: '10:00 AM - 4:00 PM',
+    latitude: 28.612,
+    longitude: 77.208,
   },
   {
     id: 4,
@@ -44,8 +52,11 @@ const centersData = [
     distance: '4.2 km away',
     phone: '98765 43225',
     hours: '10:00 AM - 4:00 PM',
+    latitude: 28.615,
+    longitude: 77.211,
   },
 ];
+// ...existing code...
 
 function StatusChip({ status }: { status: string }) {
   let color = '#22c55e';
@@ -100,6 +111,18 @@ function CenterCard({ item }: { item: typeof centersData[0] }) {
 
 export default function ExploreScreen() {
   const [search, setSearch] = useState('');
+  // Center the map on the first center for demo
+  const initialRegion = {
+    latitude: centersData[0].latitude,
+    longitude: centersData[0].longitude,
+    latitudeDelta: 0.01,
+    longitudeDelta: 0.01,
+  };
+  // Handler for marker press (to be connected to "Get Directions" logic)
+  const handleMarkerPress = (center: typeof centersData[0]) => {
+    // TODO: Trigger same action as "Get Directions" button
+    alert(`Directions to ${center.name}`);
+  };
   return (
     <View style={globalStyles.container}>
       <AppBar />
@@ -108,28 +131,39 @@ export default function ExploreScreen() {
         <View style={[{backgroundColor: '#fff', borderRadius: 16, padding: 18, marginBottom: 18}, globalStyles.shadowCard]}>
           <Text style={{fontWeight: 'bold', fontSize: 16, color: '#222', marginBottom: 4}}>Find Nearest Help Centers</Text>
           <Text style={{color: '#64748b', fontSize: 13, marginBottom: 12}}>Locate CSC centers, banks, and help desks for DBT seeding</Text>
-          <View style={{flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10}}>
-            <TextInput
-              style={{flex: 1, backgroundColor: '#f1f5f9', borderRadius: 8, padding: 10, fontSize: 15, color: '#222'}}
+          <TextInput
+              style={{flex: 1, backgroundColor: '#f1f5f9', borderRadius: 8, padding: 10, fontSize: 15, color: '#222', marginBottom: 12, width: '100%'}}
               placeholder="Enter your PIN/Location..."
               placeholderTextColor="#94a3b8"
               value={search}
               onChangeText={setSearch}
             />
-            <TouchableOpacity style={{backgroundColor: '#2563eb', borderRadius: 8, paddingHorizontal: 18, paddingVertical: 10}}>
+          <View style={{flexDirection: 'row', alignItems: 'center', gap: '2%', marginBottom: 10}}>
+            <TouchableOpacity style={{backgroundColor: '#2563eb', borderRadius: 8, paddingHorizontal: 18, paddingVertical: 10, width: '49%', alignItems: 'center'}}>
               <Text style={{color: '#fff', fontWeight: 'bold'}}>Search Centers</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{backgroundColor: '#f1f5f9', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 10}}>
+            <TouchableOpacity style={{backgroundColor: '#f1f5f9', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 10, width: '49%', alignItems: 'center'}}>
               <Text style={{color: '#2563eb', fontWeight: 'bold'}}>Use Location</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Map View Box */}
-        <View style={[{backgroundColor: '#f1f5f9', borderRadius: 16, padding: 24, marginBottom: 18, alignItems: 'center'}, globalStyles.shadowCard]}>
-          <Text style={{fontSize: 16, color: '#2563eb', marginBottom: 8}}>📍</Text>
-          <Text style={{fontWeight: 'bold', color: '#2563eb', fontSize: 15, marginBottom: 4}}>Interactive Map View</Text>
-          <Text style={{color: '#64748b', fontSize: 13}}>Showing centers near your PIN/LOCATION</Text>
+        <View style={[{backgroundColor: '#f1f5f9', borderRadius: 16, padding: 12, marginBottom: 18, alignItems: 'center'}, globalStyles.shadowCard]}>
+          <MapView
+            style={{width: Dimensions.get('window').width - 56, height: 240, borderRadius: 12}}
+            initialRegion={initialRegion}
+          >
+            {centersData.map(center => (
+              <Marker
+                key={center.id}
+                coordinate={{ latitude: center.latitude, longitude: center.longitude }}
+                title={center.name}
+                description={center.address}
+                onPress={() => handleMarkerPress(center)}
+              />
+            ))}
+          </MapView>
         </View>
 
         {/* Nearby Centers */}
