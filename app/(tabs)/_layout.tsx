@@ -3,6 +3,7 @@ import { BottomNavBar } from '@/components/ui/bottom-nav-bar';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import React from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const NAV_KEYS = ['index', 'dbt', 'scholarships' , 'explore'] as const;
 type NavKey = typeof NAV_KEYS[number];
@@ -43,17 +44,24 @@ export default function TabLayout() {
     }
   };
 
+  const Wrapper = Platform.OS === 'android' ? SafeAreaView : View;
   return (
-    <View style={styles.root}>
-      <View style={styles.content}>
-        <Slot />
+    <Wrapper style={styles.safeArea} {...(Platform.OS === 'android' ? { edges: ['top', 'bottom', 'left', 'right'] } : {})}>
+      <View style={styles.root}>
+        <View style={styles.content}>
+          <Slot />
+        </View>
+        <BottomNavBar current={current} onTabPress={handleTabPress} />
       </View>
-      <BottomNavBar current={current} onTabPress={handleTabPress} />
-    </View>
+    </Wrapper>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
   root: {
     flex: 1,
     width: '100%',
@@ -66,7 +74,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 1600,
     alignSelf: 'center',
-    paddingTop: Platform.OS === 'web' ? 0 : 0,
+    paddingTop: 0,
     paddingBottom: 0,
   },
 });

@@ -1,8 +1,11 @@
+
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import globalStyles from '../../constants/globalStyles';
 
 export default function AppBar() {
+  const router = useRouter();
   return (
     <View style={globalStyles.header}>
       <View style={globalStyles.headerLeft}>
@@ -13,7 +16,7 @@ export default function AppBar() {
         </View>
       </View>
       <View style={globalStyles.headerRight}>
-        <TouchableOpacity style={globalStyles.iconBtn}>
+        <TouchableOpacity style={globalStyles.iconBtn} onPress={() => router.push('/notification')}>
           <Text style={{fontSize:18}}>🔔</Text>
           <View style={globalStyles.dot} />
         </TouchableOpacity>

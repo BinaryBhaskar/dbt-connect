@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 const globalStyles = StyleSheet.create({
   container: { backgroundColor: '#f3f4f6', flex: 1},
   header: {
-    backgroundColor: '#2563eb', color: '#fff', padding: 16, paddingTop: 32, flexDirection: 'row',
+    backgroundColor: '#2563eb', color: '#fff', padding: 16, paddingTop: 12, flexDirection: 'row',
     justifyContent: 'space-between', alignItems: 'center', borderBottomLeftRadius: 16, borderBottomRightRadius: 16,
   }, 
   headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
