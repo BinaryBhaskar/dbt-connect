@@ -1,62 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dimensions, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import AppBar from '../../components/ui/app-bar';
 import globalStyles from '../../constants/globalStyles';
-
-// Add lat/lng for demo purposes
-const centersData = [
-  {
-    id: 1,
-    name: 'CSC Center - Rajendra Nagar',
-    type: 'CSC',
-    status: 'Open',
-    address: 'Shop 12, Main Market, Rajendra Nagar',
-    distance: '1.2 km away',
-    phone: '98765 43210',
-    hours: '9:00 AM - 6:00 PM',
-    latitude: 28.6139,
-    longitude: 77.209,
-  },
-  {
-    id: 2,
-    name: 'State Bank of India - Main Branch',
-    type: 'Bank',
-    status: 'Open',
-    address: 'Civil Lines, Near District Court',
-    distance: '2.5 km away',
-    phone: '98765 43212',
-    hours: '10:00 AM - 4:00 PM',
-    latitude: 28.6145,
-    longitude: 77.205,
-  },
-  {
-    id: 3,
-    name: 'DBT Help Desk - Block Office',
-    type: 'Government',
-    status: 'Open',
-    address: 'Block Development Office, Sadar Bazar',
-    distance: '3.1 km away',
-    phone: '98765 43222',
-    hours: '10:00 AM - 4:00 PM',
-    latitude: 28.612,
-    longitude: 77.208,
-  },
-  {
-    id: 4,
-    name: 'Punjab National Bank',
-    type: 'Bank',
-    status: 'Closed',
-    address: 'Gandhi Chowk, Railway Road',
-    distance: '4.2 km away',
-    phone: '98765 43225',
-    hours: '10:00 AM - 4:00 PM',
-    latitude: 28.615,
-    longitude: 77.211,
-  },
-];
-// ...existing code...
+import { Center, fetchCenters } from '../../services/backendManager';
 
 function StatusChip({ status }: { status: string }) {
   let color = '#22c55e';
@@ -81,48 +29,33 @@ function TypeChip({ type }: { type: string }) {
   );
 }
 
-function CenterCard({ item }: { item: typeof centersData[0] }) {
-  return (
-    <View style={[{backgroundColor: '#fff', borderRadius: 14, padding: 16, marginBottom: 16}, globalStyles.shadowCard]}> 
-      <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start'}}>
-        <View style={{flex: 1}}>
-          <Text style={{fontWeight: 'bold', fontSize: 16, color: '#222', marginBottom: 2}}>{item.name}</Text>
-          <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 6}}>
-            <TypeChip type={item.type} />
-          </View>
-          <Text style={{color: '#475569', fontSize: 13, marginBottom: 2}}>{item.address}</Text>
-          <Text style={{color: '#64748b', fontSize: 12, marginBottom: 2}}>{item.distance}</Text>
-          <Text style={{color: '#64748b', fontSize: 12, marginBottom: 2}}>📞 {item.phone}</Text>
-          <Text style={{color: '#64748b', fontSize: 12, marginBottom: 2}}>{item.hours}</Text>
-        </View>
-        <StatusChip status={item.status} />
-      </View>
-      <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 10, gap: 10}}>
-        <TouchableOpacity style={{backgroundColor: '#f1f5f9', borderRadius: 8, paddingHorizontal: 18, paddingVertical: 8}}>
-          <Text style={{color: '#2563eb', fontWeight: 'bold'}}>Call</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={{backgroundColor: '#2563eb', borderRadius: 8, paddingHorizontal: 18, paddingVertical: 8}}>
-          <Text style={{color: '#fff', fontWeight: 'bold'}}>Get Directions</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-}
-
 export default function ExploreScreen() {
+  const [centers, setCenters] = useState<Center[]>([]);
+  const [initialRegion, setInitialRegion] = useState<any | null>(null);
   const [search, setSearch] = useState('');
-  // Center the map on the first center for demo
-  const initialRegion = {
-    latitude: centersData[0].latitude,
-    longitude: centersData[0].longitude,
-    latitudeDelta: 0.01,
-    longitudeDelta: 0.01,
-  };
-  // Handler for marker press (to be connected to "Get Directions" logic)
-  const handleMarkerPress = (center: typeof centersData[0]) => {
-    // TODO: Trigger same action as "Get Directions" button
+
+  useEffect(() => {
+    let mounted = true;
+    fetchCenters().then(data => {
+      if (mounted) {
+        setCenters(data);
+        if (data.length > 0) {
+          setInitialRegion({
+            latitude: data[0].latitude,
+            longitude: data[0].longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          });
+        }
+      }
+    });
+    return () => { mounted = false; };
+  }, []);
+
+  const handleMarkerPress = (center: Center) => {
     alert(`Directions to ${center.name}`);
   };
+
   return (
     <View style={globalStyles.container}>
       <AppBar />
@@ -150,25 +83,27 @@ export default function ExploreScreen() {
 
         {/* Map View Box */}
         <View style={[{backgroundColor: '#f1f5f9', borderRadius: 16, padding: 12, marginBottom: 18, alignItems: 'center'}, globalStyles.shadowCard]}>
-          <MapView
-            style={{width: Dimensions.get('window').width - 56, height: 240, borderRadius: 12}}
-            initialRegion={initialRegion}
-          >
-            {centersData.map(center => (
-              <Marker
-                key={center.id}
-                coordinate={{ latitude: center.latitude, longitude: center.longitude }}
-                title={center.name}
-                description={center.address}
-                onPress={() => handleMarkerPress(center)}
-              />
-            ))}
-          </MapView>
+          {initialRegion && (
+            <MapView
+              style={{width: Dimensions.get('window').width - 56, height: 240, borderRadius: 12}}
+              initialRegion={initialRegion}
+            >
+              {centers.map(center => (
+                <Marker
+                  key={center.id}
+                  coordinate={{ latitude: center.latitude, longitude: center.longitude }}
+                  title={center.name}
+                  description={center.address}
+                  onPress={() => handleMarkerPress(center)}
+                />
+              ))}
+            </MapView>
+          )}
         </View>
 
         {/* Nearby Centers */}
-        <Text style={{fontWeight: 'bold', fontSize: 16, color: '#222', marginBottom: 8}}>Nearby Centers <Text style={{color: '#64748b', fontSize: 13}}>{centersData.length} found</Text></Text>
-        {centersData.map(item => (
+        <Text style={{fontWeight: 'bold', fontSize: 16, color: '#222', marginBottom: 8}}>Nearby Centers <Text style={{color: '#64748b', fontSize: 13}}>{centers.length} found</Text></Text>
+        {centers.map(item => (
           <CenterCard key={item.id} item={item} />
         ))}
 
@@ -181,6 +116,34 @@ export default function ExploreScreen() {
           <Text style={{color: '#475569', fontSize: 13}}>Download required documents</Text>
         </View>
       </ScrollView>
+    </View>
+  );
+}
+
+function CenterCard({ item }: { item: Center }) {
+  return (
+    <View style={[{backgroundColor: '#fff', borderRadius: 14, padding: 16, marginBottom: 16}, globalStyles.shadowCard]}> 
+      <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start'}}>
+        <View style={{flex: 1}}>
+          <Text style={{fontWeight: 'bold', fontSize: 16, color: '#222', marginBottom: 2}}>{item.name}</Text>
+          <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 6}}>
+            <TypeChip type={item.type} />
+          </View>
+          <Text style={{color: '#475569', fontSize: 13, marginBottom: 2}}>{item.address}</Text>
+          <Text style={{color: '#64748b', fontSize: 12, marginBottom: 2}}>{item.distance}</Text>
+          <Text style={{color: '#64748b', fontSize: 12, marginBottom: 2}}>📞 {item.phone}</Text>
+          <Text style={{color: '#64748b', fontSize: 12, marginBottom: 2}}>{item.hours}</Text>
+        </View>
+        <StatusChip status={item.status} />
+      </View>
+      <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 10, gap: 10}}>
+        <TouchableOpacity style={{backgroundColor: '#f1f5f9', borderRadius: 8, paddingHorizontal: 18, paddingVertical: 8}}>
+          <Text style={{color: '#2563eb', fontWeight: 'bold'}}>Call</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={{backgroundColor: '#2563eb', borderRadius: 8, paddingHorizontal: 18, paddingVertical: 8}}>
+          <Text style={{color: '#fff', fontWeight: 'bold'}}>Get Directions</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
