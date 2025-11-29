@@ -1,25 +1,32 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import DBTIcon from '../../assets/images/dbt_aadhaar_doc.svg';
 import ExploreIcon from '../../assets/images/explore.svg';
 import HomeIcon from '../../assets/images/home.svg';
 import ScholarshipsIcon from '../../assets/images/scholarships.svg';
+import { fetchNavItems, NavItem } from '../../services/backendManager';
 
-const NAV_ITEMS = [
-  { key: 'index', label: 'Home', Svg: HomeIcon },
-  { key: 'dbt', label: 'DBT Check', Svg: DBTIcon },
-  { key: 'scholarships', label: 'Scholarships', Svg: ScholarshipsIcon },
-  { key: 'explore', label: 'Explore', Svg: ExploreIcon },
-];
 
 export const BottomNavBar = ({ current, onTabPress }: { current: string; onTabPress: (key: string) => void }) => {
+  const [navItems, setNavItems] = useState<Array<NavItem & { Svg?: any }>>([]);
+
+  useEffect(() => {
+    // Provide Svg components when requesting nav items so icons are preserved
+    const defaults = [
+      { key: 'index', label: 'Home', Svg: HomeIcon },
+      { key: 'dbt', label: 'DBT Check', Svg: DBTIcon },
+      { key: 'scholarships', label: 'Scholarships', Svg: ScholarshipsIcon },
+      { key: 'explore', label: 'Explore', Svg: ExploreIcon },
+    ];
+    fetchNavItems(defaults).then(items => setNavItems(items)).catch(() => setNavItems(defaults as any));
+  }, []);
   // Pure white background
   const backgroundColor = '#fff';
   const selectedColor = '#1447E6';
   const textColor = '#687076';
   return (
     <View style={[styles.container, { backgroundColor }]}> 
-      {NAV_ITEMS.map(item => {
+      {navItems.map(item => {
         const isSelected = current === item.key;
         return (
           <View style={styles.tab} key={item.key}>

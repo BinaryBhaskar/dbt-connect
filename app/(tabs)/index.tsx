@@ -1,34 +1,22 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import AppBar from '../../components/ui/app-bar';
 import globalStyles from '../../constants/globalStyles';
+import { fetchHomeStats, fetchResources, fetchUpdates, UpdateItem } from '../../services/backendManager';
 
 export default function HomeScreen() {
-  // Example state for real-time updates
-  const [stats, setStats] = useState({
-    schemes: 156,
-    beneficiaries: '2.4M',
-    centers: 1250,
-  });
+  // Example state for real-time updates (loaded from backend manager for now)
+  const [stats, setStats] = useState({ schemes: 0, beneficiaries: '0', centers: 0 });
+  const [updates, setUpdates] = useState<UpdateItem[]>([]);
+  const [resources, setResources] = useState({ posters: 0, videos: 0 });
 
-  const updates = [
-    {
-      color: '#22c55e',
-      text: 'New Pre-Matric Scholarship announced for SC/ST students',
-      badge: 'New',
-      time: '2 days ago',
-    },
-    {
-      color: '#3b82f6',
-      text: 'DBT seeding deadline extended to Dec 31',
-      time: '5 days ago',
-    },
-    {
-      color: '#f97316',
-      text: '500+ new help centers added across rural areas',
-      time: '1 week ago',
-    },
-  ];
+  useEffect(() => {
+    let mounted = true;
+    fetchHomeStats().then(data => { if (mounted) setStats(data); }).catch(() => {});
+    fetchUpdates().then(data => { if (mounted) setUpdates(data); }).catch(() => {});
+    fetchResources().then(data => { if (mounted) setResources(data); }).catch(() => {});
+    return () => { mounted = false; };
+  }, []);
 
   return (
     <ScrollView style={globalStyles.container} contentContainerStyle={{ paddingBottom: 100}}>
@@ -90,8 +78,8 @@ export default function HomeScreen() {
         <View style={[globalStyles.resourcesSection, globalStyles.shadowCard]}>
           <Text style={[globalStyles.sectionTitle, {marginBottom:8}]}>Awareness Resources</Text>
           <View style={globalStyles.resourceButtons}>
-            <TouchableOpacity style={globalStyles.resBtn}><Text>📥 Posters</Text></TouchableOpacity>
-            <TouchableOpacity style={globalStyles.resBtn}><Text>📹 Videos</Text></TouchableOpacity>
+            <TouchableOpacity style={globalStyles.resBtn}><Text>📥 Posters ({resources.posters})</Text></TouchableOpacity>
+            <TouchableOpacity style={globalStyles.resBtn}><Text>📹 Videos ({resources.videos})</Text></TouchableOpacity>
           </View>
         </View>
 
