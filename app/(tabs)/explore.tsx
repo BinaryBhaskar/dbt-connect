@@ -197,8 +197,10 @@ const styles = StyleSheet.create({
 });
 
 const MOCK_MEDIA = [
-  { type: 'image', uri: require('../../assets/images/icon.png') },
-  { type: 'video', uri: require('../../assets/videos/test.mp4') },
+  { type: 'image', uri: require('../../assets/images/govt1.png') },
+  { type: 'image', uri: require('../../assets/images/govt2.png') },
+  { type: 'video', uri: require('../../assets/videos/test1.mp4') },
+  { type: 'video', uri: require('../../assets/videos/test2.mp4') },
   // Add more images or video URIs as needed
 ];
 
@@ -227,6 +229,8 @@ function SchemeReel({ item, media, onShare, onApply, isActive }: { item: Scholar
   const { isMuted, setIsMuted } = useMute();
   const lastTap = useRef<number>(0);
   const singleTapTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Optimization: Only render Video if active
+  const shouldRenderVideo = media.type === 'video' && isActive;
 
   // Sync play/pause with isActive
   useEffect(() => {
@@ -287,7 +291,7 @@ function SchemeReel({ item, media, onShare, onApply, isActive }: { item: Scholar
       <View style={styles.mediaContainer}>
         {media.type === 'image' ? (
           <Image source={media.uri} style={styles.media} resizeMode="contain" />
-        ) : (
+        ) : shouldRenderVideo ? (
           <Pressable
             style={styles.media}
             onPress={handleTap}
@@ -304,17 +308,19 @@ function SchemeReel({ item, media, onShare, onApply, isActive }: { item: Scholar
               shouldPlay={isPlaying}
               isLooping
               isMuted={isMuted}
+              posterSource={media.poster ? { uri: media.poster } : undefined}
+              usePoster={!!media.poster}
+              // For best performance, use HLS/DASH URLs if possible
+              // Example: source={{ uri: 'https://example.com/video.m3u8' }}
             />
-                  {/* Mute button bottom right */}
-                  {media.type === 'video' && (
-                    <TouchableOpacity
-                      style={styles.muteButton}
-                      onPress={() => setIsMuted(!isMuted)}
-                      activeOpacity={0.7}
-                    >
-                      <Text style={styles.muteIcon}>{isMuted ? '🔇' : '🔊'}</Text>
-                    </TouchableOpacity>
-                  )}
+            {/* Mute button bottom right */}
+            <TouchableOpacity
+              style={styles.muteButton}
+              onPress={() => setIsMuted(!isMuted)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.muteIcon}>{isMuted ? '🔇' : '🔊'}</Text>
+            </TouchableOpacity>
             {!isPlaying && !isFastForwarding && (
               <View style={styles.pausedOverlay} pointerEvents="none">
                 <Text style={styles.pausedIcon}>⏸</Text>
@@ -324,6 +330,13 @@ function SchemeReel({ item, media, onShare, onApply, isActive }: { item: Scholar
               <View style={styles.fastForwardOverlay}><Text style={styles.fastForwardText}>2x</Text></View>
             )}
           </Pressable>
+        ) : (
+          // Show poster/thumbnail if not active
+          media.poster ? (
+            <Image source={{ uri: media.poster }} style={styles.media} resizeMode="cover" />
+          ) : (
+            <View style={[styles.media, { backgroundColor: '#222' }]} />
+          )
         )}
       </View>
       {/* Gradient overlay for better text contrast */}
