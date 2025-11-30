@@ -21,6 +21,7 @@ export type Scholarship = {
   audience: string;
   deadline: string;
   status: string;
+  description?: string;
 };
 
 // For DBT status check
@@ -94,6 +95,7 @@ export async function fetchScholarships(): Promise<Scholarship[]> {
       audience: 'Class 1-10, SC category, Income < 1.2L',
       deadline: '15 Dec 2025',
       status: 'Open',
+      description: 'Financial assistance for SC students in classes 1-10 to support school education and reduce dropout rates. Covers tuition, books and related expenses.',
     },
     {
       id: 2,
@@ -104,6 +106,7 @@ export async function fetchScholarships(): Promise<Scholarship[]> {
       audience: 'Class 11-12, OBC category, Income < 2L',
       deadline: '18 Dec 2025',
       status: 'Open',
+      description: 'Support for OBC students pursuing post-matric studies; covers tuition fees and maintenance for eligible candidates.',
     },
     {
       id: 3,
@@ -114,6 +117,7 @@ export async function fetchScholarships(): Promise<Scholarship[]> {
       audience: 'Class 9-12, all categories, 55% marks',
       deadline: '30 Nov 2025',
       status: 'Closing Soon',
+      description: 'Merit-cum-means scholarship for students with good academic performance and limited family income, aimed at reducing dropouts.',
     },
     {
       id: 4,
@@ -124,6 +128,7 @@ export async function fetchScholarships(): Promise<Scholarship[]> {
       audience: 'Graduation, 60% in 12th, Income < 1L',
       deadline: '15 Jan 2026',
       status: 'Open',
+      description: 'State-level merit scholarship for high-performing students to aid in higher education expenses.',
     },
     {
       id: 5,
@@ -134,6 +139,7 @@ export async function fetchScholarships(): Promise<Scholarship[]> {
       audience: 'Class 1-10, Minority community',
       deadline: '20 Dec 2025',
       status: 'Open',
+      description: 'Provides support to students from minority communities to ensure continued primary and secondary education.',
     },
     {
       id: 6,
@@ -144,6 +150,7 @@ export async function fetchScholarships(): Promise<Scholarship[]> {
       audience: 'Female students, Class 1-12, Income < 2L',
       deadline: '10 Dec 2025',
       status: 'Open',
+      description: 'Scholarship promoting education of girl children by providing financial assistance for schooling and related needs.',
     },
   ]);
 }
@@ -188,7 +195,7 @@ export type NavItem = {
 
 export async function fetchHomeStats(): Promise<StatData> {
   // Simulate async work; return default values for now.
-  return Promise.resolve({ schemes: 156, beneficiaries: '2.4M', centers: 1250 });
+  return Promise.resolve({ schemes: 159, beneficiaries: '2.4M', centers: 1250 });
 }
 
 export async function fetchUpdates(): Promise<UpdateItem[]> {

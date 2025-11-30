@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { MuteProvider } from '../context/MuteContext';
 
 const NAV_KEYS = ['index', 'dbt','explore', 'scholarships' , 'help'] as const;
 type NavKey = typeof NAV_KEYS[number];
@@ -68,7 +69,9 @@ export default function TabLayout() {
       <StatusBar style={current === 'explore' ? 'light' : 'dark'} backgroundColor={current === 'explore' ? '#000' : '#fff'} />
       <View style={[styles.root, current === 'explore' ? { backgroundColor: '#000' } : { backgroundColor: '#fff' }]}> 
         <View style={styles.content}>
-          <Slot />
+          <MuteProvider>
+            <Slot />
+          </MuteProvider>
         </View>
         <BottomNavBar current={current} onTabPress={handleTabPress} />
       </View>
