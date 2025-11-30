@@ -21,3 +21,5 @@ export function useMute() {
   if (!context) throw new Error('useMute must be used within a MuteProvider');
   return context;
 }
+
+export default MuteContext;

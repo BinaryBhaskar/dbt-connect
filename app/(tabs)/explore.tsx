@@ -1,4 +1,5 @@
 import { ResizeMode, Video } from 'expo-av';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { Dimensions, FlatList, Image, Pressable, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -12,6 +13,16 @@ const windowHeight = Dimensions.get('window').height;
 const REEL_HEIGHT = windowHeight - NAV_BAR_HEIGHT - APP_BAR_HEIGHT;
 
 const styles = StyleSheet.create({
+        infoOverlay: {
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: 140,
+          zIndex: 1,
+          borderBottomLeftRadius: 18,
+          borderBottomRightRadius: 18,
+        },
       muteButton: {
         position: 'absolute',
         right: 18,
@@ -185,35 +196,6 @@ const styles = StyleSheet.create({
   },
 });
 
-const sideButtonStyles = StyleSheet.create({
-  sideButtons: {
-    position: 'absolute',
-    right: 16,
-    top: '40%',
-    zIndex: 2,
-    alignItems: 'center',
-    gap: 18,
-  },
-  iconButton: {
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    borderRadius: 24,
-    padding: 10,
-    marginBottom: 8,
-  },
-  icon: {
-    fontSize: 24,
-    color: '#fff',
-  },
-  statusDot: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    marginTop: 8,
-    borderWidth: 2,
-    borderColor: '#fff',
-  },
-});
-
 const MOCK_MEDIA = [
   { type: 'image', uri: require('../../assets/images/icon.png') },
   { type: 'video', uri: require('../../assets/videos/test.mp4') },
@@ -344,6 +326,14 @@ function SchemeReel({ item, media, onShare, onApply, isActive }: { item: Scholar
           </Pressable>
         )}
       </View>
+      {/* Gradient overlay for better text contrast */}
+      <LinearGradient
+        pointerEvents="none"
+        colors={["rgba(0,0,0,0.85)", "rgba(0,0,0,0.0)"]}
+        style={styles.infoOverlay}
+        start={{ x: 0.5, y: 1 }}
+        end={{ x: 0.5, y: 0 }}
+      />
       <View style={[styles.infoContainer, { bottom: NAV_BAR_HEIGHT + 16 }]} pointerEvents="box-none">
         <Text style={styles.schemeNameWithShadow}>{item.name}</Text>
         {item.description ? (
@@ -424,8 +414,8 @@ export default function ExploreScreen() {
       <View style={styles.topLeftOverlay} pointerEvents="box-none">
         <Text style={styles.dbtConnectText}>DBT Connect</Text>
         {currentStatus ? (
-          <View style={styles.statusChip}>
-            <Text style={[styles.statusChipText, { color: '#fff' }]}>{currentStatus}</Text>
+          <View style={[styles.statusChip, { backgroundColor: getStatusColor(currentStatus) }] }>
+            <Text style={styles.statusChipText}>{currentStatus}</Text>
           </View>
         ) : null}
       </View>
