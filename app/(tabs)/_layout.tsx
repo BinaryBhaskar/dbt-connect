@@ -3,10 +3,10 @@ import { BottomNavBar } from '@/components/ui/bottom-nav-bar';
 import * as NavigationBar from 'expo-navigation-bar';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { MuteProvider } from '../context/MuteContext';
 import React, { useEffect } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MuteProvider } from '../context/MuteContext';
 
 const NAV_KEYS = ['index', 'dbt','explore', 'scholarships' , 'help'] as const;
 type NavKey = typeof NAV_KEYS[number];
