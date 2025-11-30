@@ -1,5 +1,6 @@
 
 import { ResizeMode, Video } from 'expo-av';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Dimensions, FlatList, Image, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import globalStyles from '../../constants/globalStyles';
@@ -78,6 +79,7 @@ function SchemeReel({ item, media, onShare, onApply }: { item: Scholarship; medi
 }
 
 export default function ExploreScreen() {
+  const router = useRouter();
   const [schemes, setSchemes] = useState<Scholarship[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -116,6 +118,19 @@ export default function ExploreScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#000' }}>
+      {/* Fixed top overlays */}
+      <View style={styles.topLeftOverlay} pointerEvents="none">
+        <Text style={styles.dbtConnectText}>DBT Connect</Text>
+      </View>
+      <View style={styles.topRightOverlay}>
+        <TouchableOpacity
+          style={globalStyles.iconBtn}
+          onPress={() => router.push('/notification')}
+        >
+          <Text style={{ fontSize: 18 }}>🔔</Text>
+          <View style={globalStyles.dot} />
+        </TouchableOpacity>
+      </View>
       <FlatList
         data={schemes}
         keyExtractor={item => item.id.toString()}
@@ -139,6 +154,27 @@ export default function ExploreScreen() {
 }
 
 const styles = StyleSheet.create({
+    topLeftOverlay: {
+      position: 'absolute',
+      top: 24,
+      left: 16,
+      zIndex: 3,
+    },
+    topRightOverlay: {
+      position: 'absolute',
+      top: 24,
+      right: 16,
+      zIndex: 3,
+    },
+    dbtConnectText: {
+      color: '#fff',
+      fontWeight: 'bold',
+      fontSize: 22,
+      textShadowColor: 'rgba(0,0,0,0.8)',
+      textShadowOffset: { width: 0, height: 2 },
+      textShadowRadius: 6,
+      letterSpacing: 1,
+    },
   reelContainer: {
     width: '100%',
     position: 'relative',
