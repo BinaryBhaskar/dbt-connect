@@ -1,149 +1,207 @@
 
+import { ResizeMode, Video } from 'expo-av';
 import React, { useEffect, useState } from 'react';
-import { Dimensions, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
-import AppBar from '../../components/ui/app-bar';
+import { Dimensions, FlatList, Image, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import globalStyles from '../../constants/globalStyles';
-import { Center, fetchCenters } from '../../services/backendManager';
+import { fetchScholarships, Scholarship } from '../../services/backendManager';
 
-function StatusChip({ status }: { status: string }) {
-  let color = '#22c55e';
-  let bg = '#dcfce7';
-  if (status === 'Closed') { color = '#ef4444'; bg = '#fee2e2'; }
+const MOCK_MEDIA = [
+  { type: 'image', uri: require('../../assets/images/icon.png') },
+  { type: 'image', uri: require('../../assets/images/favicon.png') },
+  // Add more images or video URIs as needed
+];
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'Closing Soon':
+      return '#f97316'; // orange
+    case 'Alert':
+      return '#ef4444'; // red
+    case 'Open':
+      return '#22c55e'; // green
+    default:
+      return '#a3a3a3'; // gray
+  }
+};
+
+const windowHeight = Dimensions.get('window').height;
+const NAV_BAR_HEIGHT = 56;
+const APP_BAR_HEIGHT = 56; // adjust if your AppBar is a different height
+const REEL_HEIGHT = windowHeight - NAV_BAR_HEIGHT - APP_BAR_HEIGHT;
+
+function SideButtons({ onShare, onApply, statusColor }: { onShare: () => void; onApply: () => void; statusColor: string }) {
   return (
-    <View style={{backgroundColor: bg, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, alignSelf: 'flex-start', marginLeft: 8}}>
-      <Text style={{color, fontWeight: 'bold', fontSize: 13}}>{status}</Text>
+    <View style={styles.sideButtons}>
+      <TouchableOpacity style={styles.iconButton} onPress={onShare}>
+        <Text style={styles.icon}>🔗</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.iconButton} onPress={onApply}>
+        <Text style={styles.icon}>📝</Text>
+      </TouchableOpacity>
+      <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
     </View>
   );
 }
 
-function TypeChip({ type }: { type: string }) {
-  let color = '#2563eb', bg = '#e0e7ff';
-  if (type === 'Bank') { color = '#047857'; bg = '#d1fae5'; }
-  if (type === 'Government') { color = '#a21caf'; bg = '#f3e8ff'; }
-  if (type === 'CSC') { color = '#0ea5e9'; bg = '#e0f2fe'; }
+function SchemeReel({ item, media, onShare, onApply }: { item: Scholarship; media: any; onShare: () => void; onApply: () => void }) {
   return (
-    <View style={{backgroundColor: bg, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, marginRight: 6}}>
-      <Text style={{color, fontWeight: 'bold', fontSize: 13}}>{type}</Text>
+    <View style={[styles.reelContainer, { height: REEL_HEIGHT }]}> 
+      <View style={styles.mediaContainer}>
+        {media.type === 'image' ? (
+          <Image source={media.uri} style={styles.media} resizeMode="contain" />
+        ) : (
+          <Video
+            source={media.uri}
+            style={styles.media}
+            resizeMode={ResizeMode.CONTAIN}
+            useNativeControls={false}
+            shouldPlay
+            isLooping
+          />
+        )}
+      </View>
+      <SideButtons
+        onShare={onShare}
+        onApply={onApply}
+        statusColor={getStatusColor(item.status)}
+      />
+      <View style={[styles.infoContainer, { bottom: NAV_BAR_HEIGHT + 16 }]} pointerEvents="box-none">
+        <Text style={styles.schemeNameWithShadow}>{item.name}</Text>
+        <Text style={styles.infoTextWithShadow}>Type: {item.type} {item.state ? `/ ${item.state}` : ''}</Text>
+        <Text style={styles.infoTextWithShadow}>Audience: {item.audience}</Text>
+        <Text style={styles.infoTextWithShadow}>Amount: {item.amount}</Text>
+        <Text style={styles.infoTextWithShadow}>Deadline: {item.deadline || 'N/A'}</Text>
+        <Text style={styles.infoTextWithShadow}>Status: {item.status}</Text>
+      </View>
     </View>
   );
 }
 
 export default function ExploreScreen() {
-  const [centers, setCenters] = useState<Center[]>([]);
-  const [initialRegion, setInitialRegion] = useState<any | null>(null);
-  const [search, setSearch] = useState('');
+  const [schemes, setSchemes] = useState<Scholarship[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let mounted = true;
-    fetchCenters().then(data => {
-      if (mounted) {
-        setCenters(data);
-        if (data.length > 0) {
-          setInitialRegion({
-            latitude: data[0].latitude,
-            longitude: data[0].longitude,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          });
-        }
-      }
+    fetchScholarships().then(data => {
+      setSchemes(data);
+      setLoading(false);
     });
-    return () => { mounted = false; };
   }, []);
 
-  const handleMarkerPress = (center: Center) => {
-    alert(`Directions to ${center.name}`);
+  const handleShare = async (item: Scholarship) => {
+    try {
+      await Share.share({
+        message: `Check out this scheme: ${item.name}\nAudience: ${item.audience}\nDeadline: ${item.deadline}`,
+      });
+    } catch (error) {
+      // ignore
+    }
   };
 
+  const handleApply = (item: Scholarship) => {
+    // TODO: Implement navigation to apply screen or external link
+    alert('Apply for: ' + item.name);
+  };
+
+  if (loading) {
+    return (
+      <View style={[globalStyles.container, { justifyContent: 'center', alignItems: 'center' }]}> 
+        <Text style={{ color: '#fff' }}>Loading...</Text>
+      </View>
+    );
+  }
+
+  // For demo, cycle through mock media for each scheme
+  const getMediaForIndex = (idx: number) => MOCK_MEDIA[idx % MOCK_MEDIA.length];
+
   return (
-    <View style={globalStyles.container}>
-      <AppBar />
-      <ScrollView contentContainerStyle={{padding: 16, paddingBottom: 100}}>
-        {/* Find Centers Box */}
-        <View style={[{backgroundColor: '#fff', borderRadius: 16, padding: 18, marginBottom: 18}, globalStyles.shadowCard]}>
-          <Text style={{fontWeight: 'bold', fontSize: 16, color: '#222', marginBottom: 4}}>Find Nearest Help Centers</Text>
-          <Text style={{color: '#64748b', fontSize: 13, marginBottom: 12}}>Locate CSC centers, banks, and help desks for DBT seeding</Text>
-          <TextInput
-              style={{flex: 1, backgroundColor: '#f1f5f9', borderRadius: 8, padding: 10, fontSize: 15, color: '#222', marginBottom: 12, width: '100%'}}
-              placeholder="Enter your PIN/Location..."
-              placeholderTextColor="#94a3b8"
-              value={search}
-              onChangeText={setSearch}
-            />
-          <View style={{flexDirection: 'row', alignItems: 'center', gap: '2%', marginBottom: 10}}>
-            <TouchableOpacity style={{backgroundColor: '#2563eb', borderRadius: 8, paddingHorizontal: 18, paddingVertical: 10, width: '49%', alignItems: 'center'}}>
-              <Text style={{color: '#fff', fontWeight: 'bold'}}>Search Centers</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={{backgroundColor: '#f1f5f9', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 10, width: '49%', alignItems: 'center'}}>
-              <Text style={{color: '#2563eb', fontWeight: 'bold'}}>Use Location</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Map View Box */}
-        <View style={[{backgroundColor: '#f1f5f9', borderRadius: 16, padding: 12, marginBottom: 18, alignItems: 'center'}, globalStyles.shadowCard]}>
-          {initialRegion && (
-            <MapView
-              style={{width: Dimensions.get('window').width - 56, height: 240, borderRadius: 12}}
-              initialRegion={initialRegion}
-            >
-              {centers.map(center => (
-                <Marker
-                  key={center.id}
-                  coordinate={{ latitude: center.latitude, longitude: center.longitude }}
-                  title={center.name}
-                  description={center.address}
-                  onPress={() => handleMarkerPress(center)}
-                />
-              ))}
-            </MapView>
-          )}
-        </View>
-
-        {/* Nearby Centers */}
-        <Text style={{fontWeight: 'bold', fontSize: 16, color: '#222', marginBottom: 8}}>Nearby Centers <Text style={{color: '#64748b', fontSize: 13}}>{centers.length} found</Text></Text>
-        {centers.map(item => (
-          <CenterCard key={item.id} item={item} />
-        ))}
-
-        {/* Info Box */}
-        <View style={[{backgroundColor: '#f1f5f9', borderRadius: 14, padding: 18, marginTop: 10}, globalStyles.shadowCard]}>
-          <Text style={{fontWeight: 'bold', color: '#222', fontSize: 15, marginBottom: 8}}>What can you do at these centers?</Text>
-          <Text style={{color: '#475569', fontSize: 13, marginBottom: 4}}>- Check DBT and Aadhaar linking status</Text>
-          <Text style={{color: '#475569', fontSize: 13, marginBottom: 4}}>- Complete Aadhaar seeding process</Text>
-          <Text style={{color: '#475569', fontSize: 13, marginBottom: 4}}>- Get help with scholarship applications</Text>
-          <Text style={{color: '#475569', fontSize: 13}}>Download required documents</Text>
-        </View>
-      </ScrollView>
+    <View style={{ flex: 1, backgroundColor: '#000' }}>
+      <FlatList
+        data={schemes}
+        keyExtractor={item => item.id.toString()}
+        pagingEnabled
+        showsVerticalScrollIndicator={false}
+        renderItem={({ item, index }) => (
+          <SchemeReel
+            item={item}
+            media={getMediaForIndex(index)}
+            onShare={() => handleShare(item)}
+            onApply={() => handleApply(item)}
+          />
+        )}
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: NAV_BAR_HEIGHT + 32 }}
+        snapToInterval={REEL_HEIGHT}
+        decelerationRate="fast"
+      />
     </View>
   );
 }
 
-function CenterCard({ item }: { item: Center }) {
-  return (
-    <View style={[{backgroundColor: '#fff', borderRadius: 14, padding: 16, marginBottom: 16}, globalStyles.shadowCard]}> 
-      <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start'}}>
-        <View style={{flex: 1}}>
-          <Text style={{fontWeight: 'bold', fontSize: 16, color: '#222', marginBottom: 2}}>{item.name}</Text>
-          <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 6}}>
-            <TypeChip type={item.type} />
-          </View>
-          <Text style={{color: '#475569', fontSize: 13, marginBottom: 2}}>{item.address}</Text>
-          <Text style={{color: '#64748b', fontSize: 12, marginBottom: 2}}>{item.distance}</Text>
-          <Text style={{color: '#64748b', fontSize: 12, marginBottom: 2}}>📞 {item.phone}</Text>
-          <Text style={{color: '#64748b', fontSize: 12, marginBottom: 2}}>{item.hours}</Text>
-        </View>
-        <StatusChip status={item.status} />
-      </View>
-      <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 10, gap: 10}}>
-        <TouchableOpacity style={{backgroundColor: '#f1f5f9', borderRadius: 8, paddingHorizontal: 18, paddingVertical: 8}}>
-          <Text style={{color: '#2563eb', fontWeight: 'bold'}}>Call</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={{backgroundColor: '#2563eb', borderRadius: 8, paddingHorizontal: 18, paddingVertical: 8}}>
-          <Text style={{color: '#fff', fontWeight: 'bold'}}>Get Directions</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-}
+const styles = StyleSheet.create({
+  reelContainer: {
+    width: '100%',
+    position: 'relative',
+    justifyContent: 'flex-end',
+    backgroundColor: '#000',
+  },
+  mediaContainer: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 0,
+  },
+  media: {
+    width: '100%',
+    height: '100%',
+  },
+  sideButtons: {
+    position: 'absolute',
+    right: 16,
+    top: '40%',
+    zIndex: 2,
+    alignItems: 'center',
+    gap: 18,
+  },
+  iconButton: {
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 24,
+    padding: 10,
+    marginBottom: 8,
+  },
+  icon: {
+    fontSize: 24,
+    color: '#fff',
+  },
+  statusDot: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    marginTop: 8,
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  infoContainer: {
+    position: 'absolute',
+    left: 16,
+    right: 16,
+    zIndex: 2,
+    // No background or borderRadius, just overlay text
+    padding: 0,
+  },
+  schemeNameWithShadow: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 20,
+    marginBottom: 6,
+    textShadowColor: 'rgba(0,0,0,0.8)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 6,
+  },
+  infoTextWithShadow: {
+    color: '#fff',
+    fontSize: 14,
+    marginBottom: 2,
+    textShadowColor: 'rgba(0,0,0,0.8)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 6,
+  },
+});
