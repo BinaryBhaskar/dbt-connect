@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import AppBar from '../../components/ui/app-bar';
 import globalStyles from '../../constants/globalStyles';
+import { useRouter } from 'expo-router';
+import FloatingActionButton from '../../components/ui/fab';
 
 import { checkDBTStatus } from '../../services/backendManager';
 
 export default function DBTScreen() {
+  const router = useRouter();
   const [aadhaar, setAadhaar] = useState('');
   const [account, setAccount] = useState('');
   const [result, setResult] = useState<string | null>(null);
@@ -65,6 +68,7 @@ export default function DBTScreen() {
           )}
         </View>
       </View>
+      <FloatingActionButton onPress={() => router.push('/chat')} />
     </View>
   );
 }

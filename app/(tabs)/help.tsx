@@ -5,6 +5,8 @@ import MapView, { Marker } from 'react-native-maps';
 import AppBar from '../../components/ui/app-bar';
 import globalStyles from '../../constants/globalStyles';
 import { Center, fetchCenters } from '../../services/backendManager';
+import { useRouter } from 'expo-router';
+import FloatingActionButton from '../../components/ui/fab';
 
 function StatusChip({ status }: { status: string }) {
   let color = '#22c55e';
@@ -30,6 +32,7 @@ function TypeChip({ type }: { type: string }) {
 }
 
 export default function HelpScreen() {
+  const router = useRouter();
   const [centers, setCenters] = useState<Center[]>([]);
   const [initialRegion, setInitialRegion] = useState<any | null>(null);
   const [search, setSearch] = useState('');
@@ -116,6 +119,7 @@ export default function HelpScreen() {
           <Text style={{color: '#475569', fontSize: 13}}>Download required documents</Text>
         </View>
       </ScrollView>
+      <FloatingActionButton onPress={() => router.push('/chat')} />
     </View>
   );
 }

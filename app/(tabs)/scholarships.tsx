@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import AppBar from '../../components/ui/app-bar';
 import globalStyles from '../../constants/globalStyles';
+import { useRouter } from 'expo-router';
+import FloatingActionButton from '../../components/ui/fab';
 
 import { fetchScholarships, Scholarship } from '../../services/backendManager';
 
@@ -72,7 +74,7 @@ function ScholarshipCard({ item }: { item: Scholarship }) {
 }
 
 export default function ScholarshipsScreen() {
-
+  const router = useRouter();
   const [search, setSearch] = useState('');
   const [pill, setPill] = useState('All');
   const [page, setPage] = useState(1);
@@ -160,6 +162,7 @@ export default function ScholarshipsScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <FloatingActionButton onPress={() => router.push('/chat')} />
     </View>
   );
 }
