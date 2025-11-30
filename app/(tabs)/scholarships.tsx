@@ -1,72 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import AppBar from '../../components/ui/app-bar';
 import globalStyles from '../../constants/globalStyles';
+import { useRouter } from 'expo-router';
+import FloatingActionButton from '../../components/ui/fab';
+
+import { fetchScholarships, Scholarship } from '../../services/backendManager';
 
 const SCHOLARSHIP_CATEGORIES = ['All', 'Central', 'State'];
 
-const scholarshipsData = [
-  {
-    id: 1,
-    name: 'Pre Matric Scholarship for SC Students',
-    type: 'Central',
-    state: '',
-    amount: '₹6,000 - ₹18,000',
-    audience: 'Class 1-10, SC category, Income < 1.2L',
-    deadline: '15 Dec 2025',
-    status: 'Open',
-  },
-  {
-    id: 2,
-    name: 'Post Matric Scholarship for OBC',
-    type: 'Central',
-    state: '',
-    amount: '₹8,000 - ₹24,000',
-    audience: 'Class 11-12, OBC category, Income < 2L',
-    deadline: '18 Dec 2025',
-    status: 'Open',
-  },
-  {
-    id: 3,
-    name: 'National Means-cum Merit Scholarship',
-    type: 'Central',
-    state: '',
-    amount: '₹12,000',
-    audience: 'Class 9-12, all categories, 55% marks',
-    deadline: '30 Nov 2025',
-    status: 'Closing Soon',
-  },
-  {
-    id: 4,
-    name: 'State Merit Scholarship',
-    type: 'State',
-    state: 'UP',
-    amount: '₹6,000 - ₹10,000',
-    audience: 'Graduation, 60% in 12th, Income < 1L',
-    deadline: '15 Jan 2026',
-    status: 'Open',
-  },
-  {
-    id: 5,
-    name: 'Pre Matric Scholarship for Minorities',
-    type: 'Central',
-    state: '',
-    amount: '₹6,000',
-    audience: 'Class 1-10, Minority community',
-    deadline: '20 Dec 2025',
-    status: 'Open',
-  },
-  {
-    id: 6,
-    name: 'Girl Child Education Scholarship',
-    type: 'State',
-    state: 'MP',
-    amount: '₹8,000 - ₹20,000',
-    audience: 'Female students, Class 1-12, Income < 2L',
-    deadline: '10 Dec 2025',
-    status: 'Open',
-  },
-];
+// Data now comes from backendManager
 
 function StatusChip({ status }: { status: string }) {
   let color = '#22c55e';
@@ -103,7 +46,7 @@ function AmountChip({ amount }: { amount: string }) {
   );
 }
 
-function ScholarshipCard({ item }: { item: typeof scholarshipsData[0] }) {
+function ScholarshipCard({ item }: { item: Scholarship }) {
   return (
     <View style={[{backgroundColor: '#fff', borderRadius: 14, padding: 16, marginBottom: 16}, globalStyles.shadowCard]}> 
       <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start'}}>
@@ -131,11 +74,20 @@ function ScholarshipCard({ item }: { item: typeof scholarshipsData[0] }) {
 }
 
 export default function ScholarshipsScreen() {
+  const router = useRouter();
   const [search, setSearch] = useState('');
   const [pill, setPill] = useState('All');
   const [page, setPage] = useState(1);
+  const [scholarships, setScholarships] = useState<Scholarship[]>([]);
   const perPage = 6;
-  const filtered = scholarshipsData.filter(s =>
+
+  useEffect(() => {
+    let mounted = true;
+    fetchScholarships().then(data => { if (mounted) setScholarships(data); });
+    return () => { mounted = false; };
+  }, []);
+
+  const filtered = scholarships.filter(s =>
     (pill === 'All' || s.type === pill) &&
     (search === '' || s.name.toLowerCase().includes(search.toLowerCase()))
   );
@@ -210,6 +162,7 @@ export default function ScholarshipsScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <FloatingActionButton onPress={() => router.push('/chat')} />
     </View>
   );
 }

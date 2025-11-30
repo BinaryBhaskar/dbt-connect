@@ -9,10 +9,20 @@ import globalStyles from '../constants/globalStyles';
 export default function NotificationScreen() {
   const router = useRouter();
   const Wrapper = Platform.OS === 'android' ? SafeAreaView : View;
+
+  // Custom back handler: use router.canGoBack if available, else fallback
+  const handleBack = () => {
+    if (typeof router.canGoBack === 'function' && router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)/explore');
+    }
+  };
+
   return (
     <Wrapper style={globalStyles.container}>
       <View style={styles.headerRow}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+        <TouchableOpacity style={styles.backBtn} onPress={handleBack}>
           <Text style={{fontSize: 22, color: '#2563eb'}}>{'←'}</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Notifications</Text>

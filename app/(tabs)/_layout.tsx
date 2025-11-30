@@ -1,11 +1,14 @@
 
 import { BottomNavBar } from '@/components/ui/bottom-nav-bar';
+import * as NavigationBar from 'expo-navigation-bar';
 import { Slot, useRouter, useSegments } from 'expo-router';
-import React from 'react';
+import { StatusBar } from 'expo-status-bar';
+import { MuteProvider } from '../context/MuteContext';
+import React, { useEffect } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const NAV_KEYS = ['index', 'dbt', 'scholarships' , 'explore'] as const;
+const NAV_KEYS = ['index', 'dbt','explore', 'scholarships' , 'help'] as const;
 type NavKey = typeof NAV_KEYS[number];
 
 function getCurrentTab(segments: string[] | undefined): NavKey {
@@ -34,22 +37,41 @@ export default function TabLayout() {
     if (NAV_KEYS.includes(key as NavKey) && key !== current) {
       if (key === 'index') {
         router.replace('/(tabs)'); // Use the root of the tabs for Home
-      } else if (key === 'explore') {
-        router.replace('/(tabs)/explore');
+      } else if (key === 'help') {
+        router.replace('/(tabs)/help');
       } else if (key === 'dbt') {
         router.replace('/(tabs)/dbt');
       } else if (key === 'scholarships') {
         router.replace('/(tabs)/scholarships');
+      } else if (key === 'explore') {
+        router.replace('/(tabs)/explore');
       }
     }
   };
 
+  // Set system bar colors based on current tab
+  useEffect(() => {
+    if (current === 'explore') {
+      NavigationBar.setBackgroundColorAsync('#000');
+      NavigationBar.setButtonStyleAsync('light');
+    } else {
+      NavigationBar.setBackgroundColorAsync('#fff');
+      NavigationBar.setButtonStyleAsync('dark');
+    }
+  }, [current]);
+
   const Wrapper = Platform.OS === 'android' ? SafeAreaView : View;
   return (
-    <Wrapper style={styles.safeArea} {...(Platform.OS === 'android' ? { edges: ['top', 'bottom', 'left', 'right'] } : {})}>
-      <View style={styles.root}>
+    <Wrapper
+      style={[styles.safeArea, current === 'explore' ? { backgroundColor: '#000' } : { backgroundColor: '#fff' }]}
+      {...(Platform.OS === 'android' ? { edges: ['top', 'bottom', 'left', 'right'] } : {})}
+    >
+      <StatusBar style={current === 'explore' ? 'light' : 'dark'} backgroundColor={current === 'explore' ? '#000' : '#fff'} />
+      <View style={[styles.root, current === 'explore' ? { backgroundColor: '#000' } : { backgroundColor: '#fff' }]}> 
         <View style={styles.content}>
-          <Slot />
+          <MuteProvider>
+            <Slot />
+          </MuteProvider>
         </View>
         <BottomNavBar current={current} onTabPress={handleTabPress} />
       </View>
@@ -60,12 +82,10 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: 'transparent',
   },
   root: {
     flex: 1,
     width: '100%',
-    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
