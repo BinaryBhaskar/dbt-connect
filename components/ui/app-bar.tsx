@@ -1,8 +1,8 @@
-
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import globalStyles from '../../constants/globalStyles';
+import BellIcon from '../../assets/ui/bell.svg';
 
 export default function AppBar() {
   const router = useRouter();
@@ -17,7 +17,7 @@ export default function AppBar() {
       </View>
       <View style={globalStyles.headerRight}>
         <TouchableOpacity style={globalStyles.iconBtn} onPress={() => router.push('/notification')}>
-          <Text style={{fontSize:18}}>🔔</Text>
+          <BellIcon width={24} height={24} fill="#ffffff00"/>
           <View style={globalStyles.dot} />
         </TouchableOpacity>
         <TouchableOpacity style={globalStyles.langBtn}>

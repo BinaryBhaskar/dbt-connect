@@ -1,10 +1,18 @@
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { useRouter } from 'expo-router';
-import FloatingActionButton from '../../components/ui/fab';
 import AppBar from '../../components/ui/app-bar';
+import FloatingActionButton from '../../components/ui/fab';
 import globalStyles from '../../constants/globalStyles';
 import { fetchHomeStats, fetchResources, fetchUpdates, UpdateItem } from '../../services/backendManager';
+
+import { Ionicons } from '@expo/vector-icons';
+import DBTDocIcon from '../../assets/ui/dbt_aadhaar_doc.svg';
+import PosterIcon from '../../assets/ui/download.svg';
+import ExploreIcon from '../../assets/ui/explore.svg';
+import PortalIcon from '../../assets/ui/portal.svg';
+import ScholarshipIcon from '../../assets/ui/scholarships.svg';
+import VideoIcon from '../../assets/ui/video.svg';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -55,10 +63,10 @@ export default function HomeScreen() {
             {/* Quick Services */}
             <Text style={globalStyles.sectionTitle}>Quick Services</Text>
             <View style={globalStyles.servicesGrid}>
-              <ServiceCard icon="📄" color="#3b82f6" title="DBT & Aadhaar Check" desc="Check linking status" />
-              <ServiceCard icon="🎓" color="#4ade80" title="Scholarships" desc="View all schemes" />
-              <ServiceCard icon="📍" color="#f97316" title="Nearest Centers" desc="Find help nearby" />
-              <ServiceCard icon="👥" color="#953be8ff" title="Our Portal" desc="Register & verify" active />
+              <ServiceCard icon={<DBTDocIcon width={24} height={24} fill="#ffffff00" color ="#ffffffff"/>} color="#3b82f6" title="DBT & Aadhaar Check" desc="Check linking status" />
+              <ServiceCard icon={<ScholarshipIcon width={24} height={24} fill="#ffffff00" color ="#ffffffff"/>} color="#4ade80" title="Scholarships" desc="View all schemes" />
+              <ServiceCard icon={<ExploreIcon width={24} height={24} fill="#ffffff00" color ="#ffffffff"/>} color="#f97316" title="Nearest Centers" desc="Find help nearby" />
+              <ServiceCard icon={<PortalIcon width={24} height={24} fill="#ffffff00" color ="#ffffffff"/>} color="#953be8ff" title="Our Portal" desc="Register & verify" />
             </View>
 
             {/* Latest Updates */}
@@ -82,14 +90,14 @@ export default function HomeScreen() {
             <View style={[globalStyles.resourcesSection, globalStyles.shadowCard]}>
               <Text style={[globalStyles.sectionTitle, {marginBottom:8}]}>Awareness Resources</Text>
               <View style={globalStyles.resourceButtons}>
-                <TouchableOpacity style={globalStyles.resBtn}><Text>📥 Posters ({resources.posters})</Text></TouchableOpacity>
-                <TouchableOpacity style={globalStyles.resBtn}><Text>📹 Videos ({resources.videos})</Text></TouchableOpacity>
+                <TouchableOpacity style={globalStyles.resBtn}><View style={{flexDirection: 'column', alignItems: 'center'}}><PosterIcon /><Text> Posters ({resources.posters})</Text></View></TouchableOpacity>
+                <TouchableOpacity style={globalStyles.resBtn}><View style={{flexDirection: 'column', alignItems: 'center'}}><VideoIcon /><Text> Videos ({resources.videos})</Text></View></TouchableOpacity>
               </View>
             </View>
 
             {/* AI Banner */}
             <View style={[globalStyles.aiBanner, globalStyles.shadowCard]}>
-              <View style={globalStyles.aiIconCircle}><Text style={{fontSize:24}}>🤖</Text></View>
+              <View style={globalStyles.aiIconCircle}><Ionicons name="chatbubble-ellipses" size={28} color="#fff" /></View>
               <View style={globalStyles.aiText}>
               <Text style={globalStyles.aiTitle}>AI Assistant</Text>
               <Text style={globalStyles.aiDesc}>Get instant help with DBT, scholarships & more</Text>
@@ -98,12 +106,12 @@ export default function HomeScreen() {
           </View>
         </View>
       </ScrollView>
-      <FloatingActionButton onPress={() => router.push('/chat')} />
+      <FloatingActionButton onPress={() => router.push('../chat')} />
     </View>
   );
 }
 
-function ServiceCard({icon, color, title, desc, active}: {icon: string, color: string, title: string, desc: string, active?: boolean}) {
+function ServiceCard({icon, color, title, desc}: {icon: React.ReactNode, color: string, title: string, desc: string}) {
   return (
     <View style={globalStyles.serviceCard}>
       <View style={[globalStyles.iconSq, {backgroundColor: color}]}><Text style={{color:'#fff',fontSize:20}}>{icon}</Text></View>

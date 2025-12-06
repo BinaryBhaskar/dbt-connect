@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import DBTIcon from '../../assets/images/dbt_aadhaar_doc.svg';
-import ExploreIcon from '../../assets/images/explore.svg';
-import HelpIcon from '../../assets/images/help.svg';
-import HomeIcon from '../../assets/images/home.svg';
-import ScholarshipsIcon from '../../assets/images/scholarships.svg';
+import DBTIcon from '../../assets/ui/dbt_aadhaar_doc.svg';
+import ExploreIcon from '../../assets/ui/explore.svg';
+import HelpIcon from '../../assets/ui/help.svg';
+import HomeIcon from '../../assets/ui/home.svg';
+import ScholarshipsIcon from '../../assets/ui/scholarships.svg';
 import { fetchNavItems, NavItem } from '../../services/backendManager';
 
 

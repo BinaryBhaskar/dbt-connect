@@ -6,6 +6,9 @@ import { Dimensions, FlatList, Image, Pressable, Share, StyleSheet, Text, Toucha
 import globalStyles from '../../constants/globalStyles';
 import { fetchScholarships, Scholarship } from '../../services/backendManager';
 import { useMute } from '../context/MuteContext';
+import BellIcon from '../../assets/ui/bell.svg';
+import VolumeOnIcon from '../../assets/ui/volume_on.svg';
+import VolumeOffIcon from '../../assets/ui/volume_off.svg';
 
 const NAV_BAR_HEIGHT = 56;
 const APP_BAR_HEIGHT = 56;
@@ -319,7 +322,7 @@ function SchemeReel({ item, media, onShare, onApply, isActive }: { item: Scholar
               onPress={() => setIsMuted(!isMuted)}
               activeOpacity={0.7}
             >
-              <Text style={styles.muteIcon}>{isMuted ? '🔇' : '🔊'}</Text>
+              {isMuted ? (<VolumeOffIcon width={26} height={26} fill="#ffffff00" />) : (<VolumeOnIcon width={26} height={26} fill="#ffffff00" />)}
             </TouchableOpacity>
             {!isPlaying && !isFastForwarding && (
               <View style={styles.pausedOverlay} pointerEvents="none">
@@ -437,7 +440,7 @@ export default function ExploreScreen() {
           style={globalStyles.iconBtn}
           onPress={() => router.push('/notification')}
         >
-          <Text style={{ fontSize: 18 }}>🔔</Text>
+          <BellIcon width={24} height={24} fill="#ffffff00"/>
           <View style={globalStyles.dot} />
         </TouchableOpacity>
       </View>
